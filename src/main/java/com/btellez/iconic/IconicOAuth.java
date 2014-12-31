@@ -17,13 +17,9 @@
 package com.btellez.iconic;
 
 import com.btellez.iconic.model.ApiKeys;
+import com.btellez.iconic.utility.Signature;
 import javafx.util.Pair;
-import sun.misc.BASE64Encoder;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -64,7 +60,7 @@ public class IconicOAuth {
         oAuthHeaderList.add(new Pair<String, String>("oauth_timestamp", String.valueOf(System.currentTimeMillis()/1000)));
 
         String signature = computeSignature(sortOAuthHeaderParams(oAuthHeaderList));
-        oAuthHeaderList.add(new Pair<String, String>("oauth_signature", encode(signature)));
+        oAuthHeaderList.add(new Pair<String, String>("oauth_signature", Signature.encode(signature)));
         return "OAuth "+ getOAuthheaderString(sortOAuthHeaderParams(oAuthHeaderList));
     }
 
@@ -84,26 +80,14 @@ public class IconicOAuth {
 
     protected String computeSignature(List<Pair<String, String>> headerList) {
         String baseString = requestType.name().toUpperCase() + AMP;
-        baseString += encode(endpoint) + AMP;
-        baseString += encode(getParamString(headerList));
-        return calculateHMACSHA1(getSignatureKey(), baseString);
+        baseString += Signature.encode(endpoint) + AMP;
+        baseString += Signature.encode(Signature.getParameterString(headerList));
+        return Signature.calculateSignature(getSignatureKey(), baseString);
     }
 
-    private String getParamString(List<Pair<String, String>> headerList) {
-        StringBuffer paramsString = new StringBuffer();
-        for (Pair<String, String> set : headerList) {
-            paramsString.append(encode(set.getKey())).append(EQ)
-                    .append(encode(set.getValue())).append(AMP);
-        }
-        return paramsString.subSequence(0, paramsString.length() - 1).toString(); // trim extra ampersand
+    private  String getSignatureKey() {
+        return Signature.encode(keys.getSecret()) + AMP;
     }
-
-    // Utility Methods
-
-    private String getSignatureKey() {
-        return encode(keys.getSecret()) + AMP;
-    }
-
 
     private String getNounce(int length) {
         String alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -115,14 +99,6 @@ public class IconicOAuth {
         return result.toString();
     }
 
-    private String encode(String s) {
-        try {
-            return URLEncoder.encode(s, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            return s;
-        }
-    }
-
     private List<Pair<String, String>> sortOAuthHeaderParams(List<Pair<String, String>> headerList) {
         Collections.sort(headerList, new Comparator<Pair<String, String>>() {
             @Override
@@ -131,19 +107,6 @@ public class IconicOAuth {
             }
         });
         return headerList;
-    }
-
-    private String calculateHMACSHA1(String key, String data)
-    {
-        try {
-            Mac mac = Mac.getInstance("HmacSHA1");
-            SecretKeySpec secret = new SecretKeySpec(key.getBytes("UTF-8"), mac.getAlgorithm());
-            mac.init(secret);
-            byte[] digest = mac.doFinal(data.getBytes());
-            return new BASE64Encoder().encode(digest);
-        } catch (Exception e) {
-            return "";
-        }
     }
 
     private boolean isEmpty(String s) {

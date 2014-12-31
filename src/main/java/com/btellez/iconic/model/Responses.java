@@ -20,29 +20,29 @@ import java.util.List;
 
 public class Responses {
     public static class Collection {
-        NounCollection  collection;
+        public NounCollection  collection;
     }
 
     public static class Collections {
-        List<NounCollection> collections;
+        public List<NounCollection> collections;
     }
 
     public static class Icons {
-        String generated_at;
-        List<NounIcon> icons;
+        public String generated_at;
+        public List<NounIcon> icons;
     }
 
     public static class Icon {
-        NounIcon icon;
+        public NounIcon icon;
     }
 
     public static class RecentUploads {
-        String generated_at;
-        List<NounIcon> recent_uploads;
+        public String generated_at;
+        public List<NounIcon> recent_uploads;
     }
 
     public static class Uploads {
-        String generated_at;
-        List<NounIcon> uploads;
+        public String generated_at;
+        public List<NounIcon> uploads;
     }
 }

@@ -33,7 +33,7 @@ public class NounCollection {
     private String slug;
     private String permalink;
     private String sponsor_campaign_link;
-    private String sponsor;
+    private NounSponsor sponsor;
     private String sponsor_id;
     private String template;
     private List<String> tags;
@@ -94,7 +94,7 @@ public class NounCollection {
         return sponsor_campaign_link;
     }
 
-    public String getSponsor() {
+    public NounSponsor getSponsor() {
         return sponsor;
     }
 

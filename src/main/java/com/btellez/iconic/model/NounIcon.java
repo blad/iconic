@@ -33,7 +33,7 @@ public class NounIcon {
     private String preview_url_84;
     private String preview_url_42;
     private String sponsor_campaign_link;
-    private String sponsor;
+    private NounSponsor sponsor;
     private String sponsor_id;
     private String term;
     private String term_slug;
@@ -98,7 +98,7 @@ public class NounIcon {
         return sponsor_campaign_link;
     }
 
-    public String getSponsor() {
+    public NounSponsor getSponsor() {
         return sponsor;
     }
 

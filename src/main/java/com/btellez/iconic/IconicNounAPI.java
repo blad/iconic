@@ -17,48 +17,32 @@
 package com.btellez.iconic;
 
 import com.btellez.iconic.model.ApiKeys;
-import com.squareup.okhttp.OkHttpClient;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
-import retrofit.client.OkClient;
+import se.akerfeldt.signpost.retrofit.RetrofitHttpOAuthConsumer;
+import se.akerfeldt.signpost.retrofit.SigningOkClient;
 
 public class IconicNounAPI {
 
-    private ApiKeys apiKeys;
     private TheNounProjectService service;
 
     private static final String baseUrl = "http://api.thenounproject.com/";
     private static IconicNounAPI instance;
 
-    public IconicNounAPI() {
-
-        RestAdapter.Builder builder = new RestAdapter.Builder()
+    private IconicNounAPI(ApiKeys apiKeys) {
+        RetrofitHttpOAuthConsumer oAuthConsumer = new RetrofitHttpOAuthConsumer(apiKeys.getKey(), apiKeys.getSecret());
+        final RestAdapter.Builder builder = new RestAdapter.Builder()
                 .setEndpoint(baseUrl)
-                .setClient(new OkClient(new OkHttpClient()));
-
-        builder.setRequestInterceptor(new RequestInterceptor() {
-            @Override
-            public void intercept(RequestFacade request) {
-                IconicOAuth auth = new IconicOAuth(apiKeys);
-                request.addHeader("Accept", "application/json");
-                request.addHeader("Authorization", auth.getOAuthHeader());
-            }
-        });
-
+                .setClient(new SigningOkClient(oAuthConsumer));
         RestAdapter restAdapter = builder.build();
         service = restAdapter.create(TheNounProjectService.class);
     }
 
     public static IconicNounAPI getInstance(ApiKeys apiKeys) {
         if (instance == null) {
-            instance = new IconicNounAPI();
+            instance = new IconicNounAPI(apiKeys);
         }
-        instance.setApiKeys(apiKeys);
         return instance;
-    }
-
-    private void setApiKeys(ApiKeys apiKeys) {
-        this.apiKeys = apiKeys;
     }
 
     public TheNounProjectService getService() {
